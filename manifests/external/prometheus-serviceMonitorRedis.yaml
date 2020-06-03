@@ -30,8 +30,6 @@ spec:
       port: 9121
       protocol: TCP
       targetPort: 9121
-  selector:
-    nodes: redis-exporter
   sessionAffinity: None
   type: ClusterIP
 status:
