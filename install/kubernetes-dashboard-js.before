@@ -1,0 +1,24 @@
+1 创建 Namespace
+kubectl create namespace kubernetes-dashboard
+
+2 创建 Secret
+kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard-certs -n kubernetes-dashboard
+
+3 秘钥文件可以这样生成 （我没有这样生成，是别人生成的，从哪里下载已经不知道了，但是在代码 liuyi 中。
+mkdir dashboard-certs
+openssl req -nodes -newkey rsa:2048 -keyout dashboard-certs/dashboard.key -out dashboard-certs/dashboard.csr -subj "/C=/ST=/L=/O=/OU=/CN=kubernetes-dashboard"
+openssl x509 -req -sha256 -days 365 -in dashboard-certs/dashboard.csr -signkey dashboard-certs/dashboard.key -out certs/dashboard.crt
+
+4 下载 https://github.com/kubernetes/dashboard/blob/master/aio/deploy/recommended.yaml
+
+
+
+8 找到 SA 创建的 Secret
+kuberctl get secret -n kubernetes-dashboard
+
+9 查看 SA 的 token
+kubectl get secret kubernetes-dashboard-token-5xzlj -n kubernetes-dashboard -o jsonpath={.data.token} |base64 -d
+
+
+10 访问
+https://masterIP:30001,填入 token

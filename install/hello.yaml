@@ -1,0 +1,89 @@
+apiVersion: apps/v1                 # K8S对应的API版本
+kind: Deployment                                # 对应的类型
+metadata:
+  name: hello
+  labels:
+    k8s-app: hello
+spec:
+  replicas: 2                                   # 镜像副本数量
+  selector:
+    matchLabels:
+      k8s-app: hello
+  template:
+    metadata:
+      labels:                                   # 容器的标签 可和service关联
+        k8s-app: hello
+    spec:
+      imagePullSecrets:
+      - name: liuyi-regsitry
+      containers:
+      - name: hello                        # 容器名和镜像
+        image: registry-vpc.cn-beijing.aliyuncs.com/xiasimuou/hello:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8888
+          hostPort: 8888
+
+        volumeMounts:
+        - name: logs-mount
+          mountPath: /var/log/liuyi-product
+        - name: application-mysql
+          mountPath: /config/application-mysql.yaml
+          subPath: path/to/application-mysql.yaml
+        - name: application-redis
+          mountPath: /config/application-redis.yaml
+          subPath: path/to/application-redis.yaml
+
+      volumes:
+        - name: logs-mount
+          hostPath:
+            path: /var/log/liuyi-product
+            type: DirectoryOrCreate
+        - name: application-mysql
+          configMap:
+            name: liuyi-config
+            defaultMode: 0777
+            items:
+            - key: application-mysql.yaml
+              path: path/to/application-mysql.yaml
+        - name: application-redis
+          configMap:
+            name: liuyi-config
+            defaultMode: 0777
+            items:
+            - key: application-redis.yaml
+              path: path/to/application-redis.yaml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello             # 名称
+  labels:
+    app: hello
+spec:
+  type: ClusterIP                               # 开发端口的类型
+  ports:
+  - port: 8888                                 # 通过service来访问的端口
+    targetPort: 8888
+  selector:                                     # service负载的容器需要有同样的labels
+    k8s-app: hello
+
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: dev.api.652615.com
+    http:
+      paths:
+      - path: /hello
+        backend:
+          serviceName: hello
+          servicePort: 8888
