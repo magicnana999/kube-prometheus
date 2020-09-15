@@ -14,6 +14,13 @@ spec:
     targetPort: 80
     protocol: TCP
     nodePort: 30080
+
+  - name: imsocket
+    port: 33009
+    targetPort: 33009
+    protocol: TCP
+    nodePort: 30081
+
   - name: https
     port: 443
     targetPort: 443

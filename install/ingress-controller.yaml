@@ -25,6 +25,8 @@ metadata:
   labels:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+data:
+  33009: "default/liuyi-im-gateway-sk:33009"
 
 ---
 kind: ConfigMap
@@ -35,6 +37,8 @@ metadata:
   labels:
     app.kubernetes.io/name: ingress-nginx
     app.kubernetes.io/part-of: ingress-nginx
+data:
+  33007: "default/liuyi-im-gateway-udp:33007"
 
 ---
 apiVersion: v1
