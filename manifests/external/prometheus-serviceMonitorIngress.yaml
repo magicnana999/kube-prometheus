@@ -1,18 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-controller
+  namespace: ingress-nginx
+  labels:
+    app: ingress-controller
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+spec:
+  clusterIP: None
+  ports:
+  - name: ingresshttp
+    port: 10254
+    protocol: TCP
+    targetPort: 10254
+  sessionAffinity: None
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+status:
+  loadBalancer: {}
+---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    prometheus: k8s
-  name: ingress-exporter
-  namespace: monitoring
+    app: ingress-controller
+  name: ingress-controller
+  namespace: ingress-nginx
 spec:
   endpoints:
     - interval: 30s
-      port: http
+      port: ingresshttp
+  jobLabel: app
   namespaceSelector:
     matchNames:
       - ingress-nginx
   selector:
     matchLabels:
-      app.kubernetes.io/name: ingress-nginx
-      app.kubernetes.io/part-of: ingress-nginx
+      app: ingress-controller
